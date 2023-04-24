@@ -1,45 +1,35 @@
 package didutils
 
-import (
-	"crypto/rand"
-	"encoding/hex"
+const didPrefix string = "did:ctid"
 
-	"github.com/MengJi118/didutils/sm2"
-)
-
-// SM2Sign 私钥签名
-// imput为私钥的十六进制编码格式（hex.EncodeToString(b)）及带签名明文
-// output为签名及错误信息
-func SM2Sign(privateKey, msg string) (string, error) {
-	// Private key string conversion type
-	dBytes, err := hex.DecodeString(privateKey)
-	if err != nil {
-		return "", err
-	}
-	pk := sm2.NewPrivateKey(dBytes)
-
-	signByte, err := pk.Sign(rand.Reader, []byte(msg), nil)
-	if err != nil {
-		return "", err
-	} else {
-		return hex.EncodeToString(signByte), nil
-	}
+// DID文档
+type DidDocument struct {
+	Context        []string
+	Id             string
+	Version        string
+	PublicKey      []PublicKey
+	Authentication []string
+	Proof          DocumentProof
+	Service        []Service
 }
 
-// SM2Verify 公钥验签
-// input为公钥的十六进制编码格式（hex.EncodeToString(b)）、签名明文及签名
-// output为验签结果布尔值
-func SM2Verify(publicKey, m, signature string) bool {
-	pubBytes, err := hex.DecodeString(publicKey)
-	if err != nil {
-		return false
-	}
-	signBytes, err := hex.DecodeString(signature)
-	if err != nil {
-		return false
-	}
-	pubv := sm2.Decompress(pubBytes)
-	msg := []byte(m)
-	ok := pubv.Verify(msg, signBytes)
-	return ok
+type DocumentProof struct {
+	Type           string
+	Created        string
+	Updated        string
+	Creator        string
+	SignatureValue string
+}
+
+type PublicKey struct {
+	Id              string
+	Type            string
+	Controller      string
+	PublicKeyBase58 string
+}
+
+type Service struct {
+	Id              string
+	Type            string
+	ServiceEndpoint string
 }
